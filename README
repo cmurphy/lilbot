@@ -1,0 +1,3 @@
+A IRC bot that queries lilurl to shorten URLs.
+
+Currently only connects to irc.cat.pdx.edu with SSL.
