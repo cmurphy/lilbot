@@ -36,6 +36,7 @@ while true
     if !command.scan(/^lilbot:/).empty?
       args = command.split(' ')
       oldurl = args[1].chomp
+      postfix = nil
       postfix = args[2].chomp if !args[2].nil?
       begin
         oldurl = URI.parse(oldurl)
