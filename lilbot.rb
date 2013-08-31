@@ -5,8 +5,9 @@ require 'openssl'
 require 'net/http'
 require 'uri'
 
-$channel = ARGV[0]
-$lilhost = ARGV[1]
+$lilhost = ARGV[0]
+$channel = ARGV[1]
+$key = ARGV[2]
 
 def send message
   $ssl_socket.puts "PRIVMSG \##{$channel} :#{message}" 
@@ -21,7 +22,7 @@ $ssl_socket.connect
 $ssl_socket.puts 'USER lilbot lilbot lilbot :lilbot'
 $ssl_socket.puts 'NICK lilbot'
 puts $channel
-$ssl_socket.puts "JOIN \##{$channel}"
+$ssl_socket.puts "JOIN \##{$channel} #{$key}"
 
 while true
   line = $ssl_socket.gets
