@@ -20,7 +20,7 @@ $ssl_socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
 $ssl_socket.sync_close = true
 $ssl_socket.connect
 $ssl_socket.puts 'USER lilbot lilbot lilbot :lilbot'
-$ssl_socket.puts 'NICK lilbot'
+$ssl_socket.puts 'NICK lilbotb'
 puts $channel
 $ssl_socket.puts "JOIN \##{$channel} #{$key}"
 
@@ -40,16 +40,16 @@ while true
       postfix = args[2].chomp if !args[2].nil?
       begin
         oldurl = URI.parse(oldurl)
-      lilsite = URI.parse($lilhost)
-      if !oldurl.scheme.nil? && !oldurl.host.nil?
-        request = Net::HTTP.new(lilsite.hostname, lilsite.port)
-        response = request.post('/', "oldurl=#{oldurl}&postfix=#{postfix}", {'Accept' => 'application/json'}) do |http|
-           send http.split(': ')[1].chomp('}')
+        lilsite = URI.parse($lilhost)
+        if !oldurl.scheme.nil? && !oldurl.host.nil?
+          request = Net::HTTP.new(lilsite.hostname, lilsite.port)
+          response = request.post('/', "oldurl=#{oldurl}&postfix=#{postfix}", {'Accept' => 'application/json'}) do |http|
+             send http.split(': ')[1].chomp('}')
+          end
         end
-      end
       rescue URI::InvalidURIError
       end
-    elsif !command.scan(/https?:\/\/.*/).empty?
+    elsif !command.scan(/https?:\/\/.*/).empty? && $&.length > 40
       args = command.split(' ')
       args.each do |arg|
         tmp = arg.scan(/(https?:\/\/.*)/)[0]
