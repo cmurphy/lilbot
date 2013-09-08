@@ -58,8 +58,11 @@ while true
       lilsite = URI.parse($lilhost)
       request = Net::HTTP.new(lilsite.hostname, lilsite.port)
       response = request.post('/', "oldurl=#{oldurl}", {'Accept' => 'application/json'}) do |http|
-        puts "response: " + http
-        send http.split(': ')[1].chomp('}')
+        if http.nil? || http.split(': ').nil? || http.split(': ')[1].nil?
+          puts "error: response was nil"
+        else
+          send http.split(': ')[1].chomp('}')
+        end
       end
       
     end
