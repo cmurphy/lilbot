@@ -4,11 +4,38 @@ require 'socket'
 require 'openssl'
 require 'net/http'
 require 'uri'
+require 'trollop'
 
-$lilhost = ARGV[0]
-$channel = ARGV[1]
-$key = ARGV[2]
-$botname = 'lilbot'
+def parse_commandline
+  parser = Trollop::Parser.new do
+    banner <<-EOS
+  Usage: ./lilbot.rb -l <lilhostname> [-b <botname>] [-i <irchost>
+                      [-p <ircport>[-c <channel> -k <channelkey>]]] 
+EOS
+    opt :lilhost, 'Hostname of lilurl server',
+                  :short => 'l', :type => String
+    opt :botname, 'Nick of the bot',
+                  :short => 'b', :type => String, :default => 'lilbot'
+    opt :irchost, 'IRC host to connect to',
+                  :short => 'i', :type => String, :default => 'irc.cat.pdx.edu'
+    opt :ircport, 'Port to connect to',
+                  :short => 'p', :type => Integer, :default => 6697
+    opt :channel, 'Default channel to join. Do NOT include the leading "#"',
+                  :short => 'c', :type => String
+    opt :key,     'Optional key for the default channel',
+                  :short => 'k', :type => String
+  end
+  $opts = Trollop::with_standard_exception_handling parser do
+    raise Trollop::HelpNeeded if ARGV.empty?
+    parser.parse ARGV
+  end
+  $lilhost = $opts[:lilhost]
+  $botname = $opts[:botname]
+  $irchost = $opts[:irchost]
+  $ircport = $opts[:ircport]
+  $channel = $opts[:channel]
+  $key     = $opts[:key]
+end
 
 def send channel, message
   puts "PRIVMSG #{channel} :#{message}" 
@@ -72,7 +99,8 @@ def shorten command, postfix
   end
 end
 
-socket = TCPSocket.open 'irc.cat.pdx.edu', 6697
+parse_commandline
+socket = TCPSocket.open $irchost, $ircport
 ssl_context = OpenSSL::SSL::SSLContext.new
 ssl_context.set_params(verify_mode: OpenSSL::SSL::VERIFY_NONE)
 $ssl_socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
