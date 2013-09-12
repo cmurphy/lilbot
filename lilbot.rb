@@ -6,6 +6,11 @@ require 'net/http'
 require 'uri'
 require 'trollop'
 
+def bail message
+  puts message
+  exit
+end
+
 def parse_commandline
   parser = Trollop::Parser.new do
     banner <<-EOS
@@ -20,6 +25,8 @@ EOS
                   :short => 'i', :type => String, :default => 'irc.cat.pdx.edu'
     opt :ircport, 'Port to connect to',
                   :short => 'p', :type => Integer, :default => 6697
+    opt :ssl,     'If set, connect with SSL', 
+                  :short => 's', :default => false
     opt :channel, 'Default channel to join. Do NOT include the leading "#"',
                   :short => 'c', :type => String
     opt :key,     'Optional key for the default channel',
@@ -38,7 +45,7 @@ EOS
 end
 
 def send channel, message
-  $ssl_socket.puts "PRIVMSG #{channel} :#{message}" 
+  $socket.puts "PRIVMSG #{channel} :#{message}" 
 end
 
 def parse line
@@ -49,15 +56,15 @@ def parse line
 end
 
 def pong
-  $ssl_socket.puts 'PONG'
+  $socket.puts 'PONG'
 end
 
 def join channel, key
-  $ssl_socket.puts "JOIN \##{channel} #{key}"
+  $socket.puts "JOIN \##{channel} #{key}"
 end
 
 def leave channel, message
-  $ssl_socket.puts "PART \##{channel} :#{message}"
+  $socket.puts "PART \##{channel} :#{message}"
 end
 
 def help
@@ -104,23 +111,36 @@ def shorten command, postfix
 end
 
 Signal.trap "SIGINT" do
-  exit
+  bail "Bot interrupted."
 end
 
 parse_commandline
 
-socket = TCPSocket.open $irchost, $ircport
-ssl_context = OpenSSL::SSL::SSLContext.new
-ssl_context.set_params(verify_mode: OpenSSL::SSL::VERIFY_NONE)
-$ssl_socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
-$ssl_socket.sync_close = true
-$ssl_socket.connect
-$ssl_socket.puts 'USER lilbot lilbot lilbot :lilbot'
-$ssl_socket.puts "NICK #{$botname}"
-$ssl_socket.puts "JOIN \##{$channel} #{$key}"
+$socket = TCPSocket.open $irchost, $ircport
+if $opts[:ssl]
+  begin
+    ssl_context = OpenSSL::SSL::SSLContext.new
+    ssl_context.set_params(verify_mode: OpenSSL::SSL::VERIFY_NONE)
+    $socket = OpenSSL::SSL::SSLSocket.new($socket, ssl_context)
+    $socket.sync_close = true
+    $socket.connect
+  rescue OpenSSL::SSL::SSLError
+    bail "The port you specified does not allow SSL."
+  end
+end
+$socket.puts 'USER lilbot lilbot lilbot :lilbot'
+$socket.puts "NICK #{$botname}"
+$socket.puts "JOIN \##{$channel} #{$key}"
 
 while true
-  line = $ssl_socket.gets
+  begin
+  line = $socket.gets
+  if line.nil?
+    raise ArgumentError
+  end
+  rescue Errno::ECONNRESET, ArgumentError
+    bail "Networking failure, most likely you tried to connect to an SSL-only port without specifying '--ssl'."
+  end
   puts line
   if line.include? 'PING'
     pong

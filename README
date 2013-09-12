@@ -6,7 +6,6 @@ Usage: ./lilbot.rb -l <lilhostname> [-b <botname>] [-i <irchost>
  --botname, -b <s>:   Nick of the bot (default: lilbot)
  --irchost, -i <s>:   IRC host to connect to (default: irc.cat.pdx.edu)
  --ircport, -p <i>:   Port to connect to (default: 6697)
+         --ssl, -s:   If set, connect with SSL
  --channel, -c <s>:   Default channel to join. Do NOT include the leading "#"
      --key, -k <s>:   Optional key for the default channel
-
-Only works on SSL ports.
