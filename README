@@ -1,3 +1,12 @@
 A IRC bot that queries lilurl to shorten URLs.
 
-Currently only connects to irc.cat.pdx.edu with SSL.
+Usage: ./lilbot.rb -l <lilhostname> [-b <botname>] [-i <irchost>
+                     [-p <ircport>[-c <channel> -k <channelkey>]]] 
+ --lilhost, -l <s>:   Hostname of lilurl server
+ --botname, -b <s>:   Nick of the bot (default: lilbot)
+ --irchost, -i <s>:   IRC host to connect to (default: irc.cat.pdx.edu)
+ --ircport, -p <i>:   Port to connect to (default: 6697)
+ --channel, -c <s>:   Default channel to join. Do NOT include the leading "#"
+     --key, -k <s>:   Optional key for the default channel
+
+Only works on SSL ports.
