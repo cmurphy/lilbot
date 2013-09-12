@@ -38,7 +38,6 @@ EOS
 end
 
 def send channel, message
-  puts "PRIVMSG #{channel} :#{message}" 
   $ssl_socket.puts "PRIVMSG #{channel} :#{message}" 
 end
 
@@ -57,6 +56,10 @@ def join channel, key
   $ssl_socket.puts "JOIN \##{channel} #{key}"
 end
 
+def leave channel, message
+  $ssl_socket.puts "PART \##{channel} :#{message}"
+end
+
 def help
   help = []
   help << "Commands: In a PM or directed to lilbot:"
@@ -71,14 +74,15 @@ def request command, channel
     _, command, args = command.split(' ', 3)  # ignore the 'lilbot:' in the beginning
   else # pm
     command, args = command.split(' ', 2)
-    puts channel
     channel = channel[0][0]
   end
   if !command.scan(/^join/).empty?
     channel, key = args.split(' ', 2)
     join channel[1..-1], key # skip the #, key could be nil
+  elsif !command.scan(/^leave/).empty?
+    channel, message = args.split(' ', 2)
+    leave channel[1..-1], message
   elsif !command.scan(/^help/).empty?
-    puts "helping"
     help.each {|h| send channel, h }
   elsif !command.scan(/^https?/).empty?
     send(channel, shorten(command, args.split(' ')[0])) # if args has more than one thing, only use the first for the postfix
@@ -119,7 +123,6 @@ while true
     user, channel, command = parse(line)
     if !command.scan(/^#{$botname}:/).empty? || channel == $botname
       channel = user if channel == $botname
-      puts channel
       request command, channel
     elsif !command.scan(/https?:\/\/.*/).empty? && $&.length > 40
       args = command.split(' ')
@@ -128,7 +131,6 @@ while true
         tmp = arg.scan(/(https?:\/\/.*)/)[0]
         oldurl = URI.parse(tmp[0]) if !tmp.nil?
       end
-      puts oldurl
       lilsite = URI.parse($lilhost)
       request = Net::HTTP.new(lilsite.hostname, lilsite.port)
       response = request.post('/', "oldurl=#{oldurl}", {'Accept' => 'application/json'}) do |http|
