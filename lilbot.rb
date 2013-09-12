@@ -103,7 +103,12 @@ def shorten command, postfix
   end
 end
 
+Signal.trap "SIGINT" do
+  exit
+end
+
 parse_commandline
+
 socket = TCPSocket.open $irchost, $ircport
 ssl_context = OpenSSL::SSL::SSLContext.new
 ssl_context.set_params(verify_mode: OpenSSL::SSL::VERIFY_NONE)
@@ -144,4 +149,3 @@ while true
     end
   end
 end
-
