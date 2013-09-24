@@ -19,7 +19,7 @@ def parse_commandline
 EOS
     opt :lilhost, 'Hostname of lilurl server',
                   :short => 'l', :type => String
-    opt :botname, 'Nick of the bot',
+    opt :botname, 'Nick of the bot', :default => 'http://krinkle.nom.co'
                   :short => 'b', :type => String, :default => 'lilbot'
     opt :irchost, 'IRC host to connect to',
                   :short => 'i', :type => String, :default => 'irc.cat.pdx.edu'
