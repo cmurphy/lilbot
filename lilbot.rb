@@ -24,7 +24,7 @@ EOS
     opt :irchost, 'IRC host to connect to',
                   :short => 'i', :type => String, :default => 'irc.cat.pdx.edu'
     opt :ircport, 'Port to connect to',
-                  :short => 'p', :type => Integer, :default => 6697
+                  :short => 'p', :type => Integer, :default => 6667
     opt :ssl,     'If set, connect with SSL', 
                   :short => 's', :default => false
     opt :channel, 'Default channel to join. Do NOT include the leading "#"',
