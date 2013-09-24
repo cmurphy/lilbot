@@ -18,8 +18,8 @@ def parse_commandline
                       [-p <ircport>[-c <channel> -k <channelkey>]]] 
 EOS
     opt :lilhost, 'Hostname of lilurl server',
-                  :short => 'l', :type => String
-    opt :botname, 'Nick of the bot',
+                  :short => 'l', :type => String, :default => 'http://krinkle.nom.co'
+    opt :botname, 'Nick of the bot', 
                   :short => 'b', :type => String, :default => 'lilbot'
     opt :irchost, 'IRC host to connect to',
                   :short => 'i', :type => String, :default => 'irc.cat.pdx.edu'
