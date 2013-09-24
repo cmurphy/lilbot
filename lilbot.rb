@@ -149,7 +149,8 @@ while true
     if !command.scan(/^#{$botname}:/).empty? || channel == $botname
       channel = user if channel == $botname
       request command, channel
-    elsif !command.scan(/https?:\/\/.*/).empty? && $&.length > 40
+    elsif !command.scan(/https?:\/\/[^ ]*/).empty? && $&.length > 40
+      puts $&
       args = command.split(' ')
       oldurl = nil
       args.each do |arg|
