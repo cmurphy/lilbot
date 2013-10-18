@@ -107,6 +107,7 @@ def shorten command, postfix
       end
     end
   rescue URI::InvalidURIError
+    puts "Rescued invalid URI"
   end
 end
 
@@ -155,11 +156,16 @@ while true
       oldurl = nil
       args.each do |arg|
         tmp = arg.scan(/(https?:\/\/.*)/)[0]
-        oldurl = URI.parse(tmp[0]) if !tmp.nil?
+        begin
+          oldurl = URI.parse(tmp[0]) if !tmp.nil?
+        rescue URI::InvalidURIError
+          next
+        end
       end
       lilsite = URI.parse($lilhost)
       request = Net::HTTP.new(lilsite.hostname, lilsite.port)
-      response = request.post('/', "oldurl=#{oldurl}", {'Accept' => 'application/json'}) do |http|
+puts oldurl
+      response = request.post('/', "oldurl=#{URI.encode_www_form_component(oldurl)}", {'Accept' => 'application/json'}) do |http|
         if http.nil? || http.split(': ').nil? || http.split(': ')[1].nil?
           puts "error: response was nil"
         else
