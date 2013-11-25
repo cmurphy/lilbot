@@ -31,6 +31,8 @@ EOS
                   :short => 'c', :type => String
     opt :key,     'Optional key for the default channel',
                   :short => 'k', :type => String
+    opt :keyfile, 'File containing plain-text channel key for default channel',
+                  :short => 'f', :type => String
   end
   $opts = Trollop::with_standard_exception_handling parser do
     raise Trollop::HelpNeeded if ARGV.empty?
@@ -42,6 +44,7 @@ EOS
   $ircport = $opts[:ircport]
   $channel = $opts[:channel]
   $key     = $opts[:key]
+  $keyfile = $opts[:keyfile]
 end
 
 def send channel, message
@@ -131,6 +134,9 @@ if $opts[:ssl]
 end
 $socket.puts 'USER lilbot lilbot lilbot :lilbot'
 $socket.puts "NICK #{$botname}"
+if !$keyfile.nil?
+  File.open($keyfile) { |f| $key = f.read }
+end
 $socket.puts "JOIN \##{$channel} #{$key}"
 
 while true
